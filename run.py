@@ -23,7 +23,6 @@ if __name__ == '__main__':
     # compute differences
             # compare 2 files
 
-
     # NOT NOW
     # argparse
     # dedup
