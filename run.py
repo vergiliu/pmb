@@ -1,6 +1,7 @@
-from filecmp import dircmp
 import sys
 import logging
+import time
+
 from FolderComparator import FolderComparator
 
 FORMAT = '%(funcName)-20s %(message)s'
@@ -10,11 +11,11 @@ logger.setLevel(logging.DEBUG)
 
 if __name__ == '__main__':
     logger.info('starting up')
-    l = sys.argv[1]
-    r = sys.argv[2]
+    left = sys.argv[1]
+    right = sys.argv[2]
 
-    fc = FolderComparator(l, r)
-    fc.run_comparison()
+    fc = FolderComparator(left, right)
+    fc.print_current_state()
 
     # NOW
     # find all files

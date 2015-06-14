@@ -4,11 +4,11 @@ class ComputeDifferences:
         self.left = None
         self.right = None
 
-    def set_left_file(self, left_file):
-        self.left = left_file
+    def set_source_folder(self, source):
+        self.left = source
 
-    def set_right_file(self, right_file):
-        self.right = right_file
+    def set_backup_folder(self, destination):
+        self.right = destination
 
     def are_files_the_same(self):
         self.right
