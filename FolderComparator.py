@@ -1,4 +1,5 @@
 import os
+import shutil
 import stat
 import filecmp
 import logging
@@ -8,16 +9,23 @@ logger.setLevel(logging.DEBUG)
 
 
 class BackupLevel:
+    """There are 3 main configurations, depending on what we want to achieve
+    backup(0) is to copy all new/different files from the current location to the backup location
+    restore(1) is to restore all/different files from the backup location to the current location
+    both(2) is to have all files in both locations, and depending on another* option to choose one of them
+    *another* to be decided - by date, by type, by file_size, by other things
+    """
     backup = 0
-    remove = 1
+    restore = 1
     both = 2
 
 
 class FolderComparator(filecmp.dircmp):
-    def __init__(self, source, destination, ignore=None, hide=None):
+    def __init__(self, source, destination, ignore=None, hide=None, mode=BackupLevel.backup):
         super().__init__(source, destination, ignore, hide)
         self.left = source
         self.right = destination
+        self.mode = mode
 
     def print_current_state(self):
         logger.info('Checking folders [{}] vs [{}]'.format(self.left, self.right))
@@ -40,15 +48,18 @@ class FolderComparator(filecmp.dircmp):
                 self.run_comparison(sub_folder.subdirs.values())
 
     def sync_files_in_folder(self, sub_folder, sync_method=BackupLevel.backup):
+        # todo sync_method should come from class
         for a_file in sub_folder:
-            logger.info('\t{}'.format(os.path.realpath(a_file)))
+            my_file_path = os.path.realpath(os.path.join(self.left, a_file))
+            logger.info('\t{} '.format(my_file_path))
+            logger.debug('\t {} -> {}'.format(os.path.realpath(self.left), os.path.realpath(self.right)))
+            # shutil.copy2()
             if sync_method == BackupLevel.backup:
                 logger.info('copy')
-            elif sync_method == BackupLevel.remove:
+            elif sync_method == BackupLevel.restore:
                 logger.info('remove from backup')
             elif sync_method == BackupLevel.both:
                 logger.info('both places')
-
 
     def check_root_diffs(self):
         if self.left_only:
