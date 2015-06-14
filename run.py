@@ -3,7 +3,7 @@ import logging
 
 from FolderComparator import FolderComparator
 
-FORMAT = '%(funcName)-20s %(message)s'
+FORMAT = '%(funcName)-24s => %(message)s'
 logging.basicConfig(format=FORMAT)
 logger = logging.getLogger(__file__)
 logger.setLevel(logging.DEBUG)
