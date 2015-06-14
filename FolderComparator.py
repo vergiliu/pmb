@@ -13,7 +13,7 @@ class FolderComparator(filecmp.dircmp):
         self.right = destination
 
     def print_current_state(self):
-        logger.info('{} vs {}'.format(self.left, self.right))
+        logger.info('Checking folders [{}] vs [{}]'.format(self.left, self.right))
         self.check_root_diffs()
         self.run_comparison(self.subdirs.values())
 
@@ -39,5 +39,7 @@ class FolderComparator(filecmp.dircmp):
     def check_root_diffs(self):
         if self.left_only:
             logger.info('New {}'.format(self.left_only))
+            self.check_single_file(self.left_only)
         if self.right_only:
             logger.info('Old {}'.format(self.right_only))
+            self.check_single_file(self.right_only)

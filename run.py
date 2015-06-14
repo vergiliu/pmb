@@ -1,6 +1,5 @@
 import sys
 import logging
-import time
 
 from FolderComparator import FolderComparator
 
