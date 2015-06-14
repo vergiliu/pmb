@@ -1,5 +1,6 @@
 import sys
 import logging
+from BackupLevel import BackupLevel
 
 from FolderComparator import FolderComparator
 
@@ -13,7 +14,7 @@ if __name__ == '__main__':
     left = sys.argv[1]
     right = sys.argv[2]
 
-    fc = FolderComparator(left, right)
+    fc = FolderComparator(left, right )
     fc.print_current_state()
 
     # NOW
