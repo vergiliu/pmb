@@ -17,6 +17,8 @@ if __name__ == '__main__':
     fc = FolderComparator(left, right)
     fc.synchronize_now()
 
+    fc.print_queue()
+
     # NOW
     # find all files
         # left

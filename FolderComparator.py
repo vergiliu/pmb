@@ -3,11 +3,13 @@ import shutil
 import stat
 import filecmp
 import logging
+import asyncio
 from BackupLevel import BackupLevel
 
 logger = logging.getLogger(__file__)
 logger.setLevel(logging.DEBUG)
 
+q = asyncio.Queue()
 
 class FolderComparator(filecmp.dircmp):
     def __init__(self, source, destination, ignore=None, hide=None, method=BackupLevel.backup):
@@ -37,27 +39,29 @@ class FolderComparator(filecmp.dircmp):
             if sub_folder.subdirs:
                 self.run_comparison(sub_folder.subdirs.values())
 
+    # todo specifying the fact that it's a folder already is stupid
     def sync_files_in_folder(self, sub_folder, from_folder, to_folder, is_folder=False):
         for a_file in sub_folder:
             from_path = os.path.realpath(os.path.join(from_folder, a_file))
             to_path = os.path.realpath(os.path.join(to_folder, a_file))
             logger.debug('\n\t\t {} ->\n\t\t {}'.format(from_path, to_path))
-
-            # shutil.copy2()
+            q.put_nowait((from_path, to_path))
             if self.method == BackupLevel.backup:
                 logger.info('copy')
                 if is_folder:
                     logger.debug('using copytree to copy folder')
-                    shutil.copytree(from_path, to_path)
+                    # todo revert comments shutil.copytree(from_path, to_path)
                 else:
                     logger.debug('using copy2 to copy file')
-                    shutil.copy2(from_path, to_path)
+                    # shutil.copy2(from_path, to_path)
+                # todo add case for links
 
             elif self.method == BackupLevel.restore:
                 logger.info('remove from backup')
             elif self.method == BackupLevel.both:
                 logger.info('both places')
 
+    # todo keep in single recursive function instead of separate junk
     def check_root_diffs(self):
         if self.left_only and (self.method == BackupLevel.backup or self.method == BackupLevel.both):
             logger.info('files not present on backup')
@@ -68,3 +72,7 @@ class FolderComparator(filecmp.dircmp):
         if self.diff_files:
             logger.info('different root files')
             self.sync_files_in_folder(self.diff_files, self.left, self.right)
+
+    @staticmethod
+    def print_queue():
+        logger.info('queue is {}'.format(q.qsize()))
