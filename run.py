@@ -14,8 +14,8 @@ if __name__ == '__main__':
     left = sys.argv[1]
     right = sys.argv[2]
 
-    fc = FolderComparator(left, right )
-    fc.print_current_state()
+    fc = FolderComparator(left, right)
+    fc.synchronize_now()
 
     # NOW
     # find all files
