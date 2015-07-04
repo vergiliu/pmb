@@ -29,10 +29,10 @@ class FolderComparator(filecmp.dircmp):
         for sub_folder in folders:
             if sub_folder.left_only and (self.method == BackupLevel.backup or self.method == BackupLevel.both):
                 logger.info('files to backup {}'.format(sub_folder.left_only))
-                self.sync_files_in_folder(sub_folder.left_only, sub_folder.left, sub_folder.right, True)
+                self.sync_files_in_folder(sub_folder.left_only, sub_folder.left, sub_folder.right)
             if sub_folder.right_only and (self.method == BackupLevel.restore or self.method == BackupLevel.both):
                 logger.info('files present only on backup {}'.format(sub_folder.right_only))
-                self.sync_files_in_folder(sub_folder.right_only, sub_folder.right, sub_folder.left, True)
+                self.sync_files_in_folder(sub_folder.right_only, sub_folder.right, sub_folder.left)
             if sub_folder.diff_files:
                 logger.info('different files')
                 self.sync_files_in_folder(sub_folder.diff_files, sub_folder.left, sub_folder.right)
@@ -40,26 +40,29 @@ class FolderComparator(filecmp.dircmp):
                 self.run_comparison(sub_folder.subdirs.values())
 
     # todo specifying the fact that it's a folder already is stupid
-    def sync_files_in_folder(self, sub_folder, from_folder, to_folder, is_folder=False):
+    def sync_files_in_folder(self, sub_folder, from_folder, to_folder):
         for a_file in sub_folder:
             from_path = os.path.realpath(os.path.join(from_folder, a_file))
             to_path = os.path.realpath(os.path.join(to_folder, a_file))
-            logger.debug('\n\t\t {} ->\n\t\t {}'.format(from_path, to_path))
+            logger.debug('\n\t\t {} -> \t\t {}'.format(from_path, to_path))
             q.put_nowait((from_path, to_path))
             if self.method == BackupLevel.backup:
                 logger.info('copy')
-                if is_folder:
+                if os.path.isdir(from_path):
                     logger.debug('using copytree to copy folder')
-                    # todo revert comments shutil.copytree(from_path, to_path)
+                    # todo revert comments
+                    shutil.copytree(from_path, to_path)
                 else:
                     logger.debug('using copy2 to copy file')
-                    # shutil.copy2(from_path, to_path)
+                    shutil.copy2(from_path, to_path)
                 # todo add case for links
 
             elif self.method == BackupLevel.restore:
                 logger.info('remove from backup')
+                logger.info('to be implemented')
             elif self.method == BackupLevel.both:
                 logger.info('both places')
+                logger.info('to be implemented')
 
     # todo keep in single recursive function instead of separate junk
     def check_root_diffs(self):
@@ -76,3 +79,6 @@ class FolderComparator(filecmp.dircmp):
     @staticmethod
     def print_queue():
         logger.info('queue is {}'.format(q.qsize()))
+        while not q.empty():
+            el = q.get_nowait()
+            print('sync {}'.format(el))
