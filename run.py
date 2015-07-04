@@ -4,8 +4,7 @@ from BackupLevel import BackupLevel
 
 from FolderComparator import FolderComparator
 
-FORMAT = '%(funcName)-24s => %(message)s'
-logging.basicConfig(format=FORMAT)
+logging.basicConfig(format='%(asctime)s  %(funcName)-24s => %(message)s', datefmt='%H:%M:%S')
 logger = logging.getLogger(__file__)
 logger.setLevel(logging.DEBUG)
 
