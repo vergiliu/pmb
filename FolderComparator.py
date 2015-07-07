@@ -17,6 +17,7 @@ class FolderComparator(filecmp.dircmp):
         self.left = source
         self.right = destination
         self.method = method
+        self.dry_run = True
 
     def synchronize_now(self):
         logger.info('Checking folders [{}] vs [{}]'.format(self.left, self.right))
@@ -44,17 +45,18 @@ class FolderComparator(filecmp.dircmp):
         for a_file in sub_folder:
             from_path = os.path.realpath(os.path.join(from_folder, a_file))
             to_path = os.path.realpath(os.path.join(to_folder, a_file))
-            logger.debug('\n\t\t {} -> \t\t {}'.format(from_path, to_path))
+            logger.debug('\t\t {} -> \t\t {}'.format(from_path, to_path))
             q.put_nowait((from_path, to_path))
             if self.method == BackupLevel.backup:
-                logger.info('copy')
                 if os.path.isdir(from_path):
                     logger.debug('using copytree to copy folder')
                     # todo revert comments
-                    shutil.copytree(from_path, to_path)
+                    if not self.dry_run:
+                        shutil.copytree(from_path, to_path)
                 else:
                     logger.debug('using copy2 to copy file')
-                    shutil.copy2(from_path, to_path)
+                    if not self.dry_run:
+                        shutil.copy2(from_path, to_path)
                 # todo add case for links
 
             elif self.method == BackupLevel.restore:
